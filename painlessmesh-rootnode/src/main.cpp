@@ -32,13 +32,13 @@ IPAddress getlocalIP();
 
 IPAddress myIP(0, 0, 0, 0);
 IPAddress mqttBroker(192, 168, 1, 4);
-Scheduler userScheduler;
+// Scheduler userScheduler;
 painlessMesh mesh;
 WiFiClient wifiClient;
 PubSubClient mqttClient(mqttBroker, 1883, mqttCallback, wifiClient);
 
-void sendMsgToBroker();
-Task taskSendMessage( TASK_SECOND * 3 , TASK_FOREVER, &sendMsgToBroker );
+// void sendMsgToBroker();
+// Task taskSendMessage( TASK_SECOND * 3 , TASK_FOREVER, &sendMsgToBroker );
 
 
 void setup()
@@ -49,18 +49,18 @@ void setup()
 
   // Channel set to 6. Make sure to use the same channel for your mesh and for you other
   // network (STATION_SSID)
-  mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT, WIFI_AP_STA, 6);
+  mesh.init(MESH_PREFIX, MESH_PASSWORD, MESH_PORT, WIFI_AP_STA, 6);
   mesh.onReceive(&receivedCallback);
 
-  // mesh.stationManual(STATION_SSID, STATION_PASSWORD);
-  // mesh.setHostname(HOSTNAME);
+  mesh.stationManual(STATION_SSID, STATION_PASSWORD);
+  mesh.setHostname(HOSTNAME);
 
   // Bridge node, should (in most cases) be a root node. See [the wiki](https://gitlab.com/painlessMesh/painlessMesh/wikis/Possible-challenges-in-mesh-formation) for some background
-  // mesh.setRoot(true);
+  mesh.setRoot(true);
   // This node and all other nodes should ideally know the mesh contains a root, so call this on all nodes
   mesh.setContainsRoot(true);
-  userScheduler.addTask( taskSendMessage );
-  taskSendMessage.enable();
+  // userScheduler.addTask( taskSendMessage );
+  // taskSendMessage.enable();
 
 }
 

@@ -12,13 +12,13 @@
 
 #include <Arduino.h>
 #include <painlessMesh.h>
-#include <PubSubClient.h>
 #include <WiFiClient.h>
 
 #define MESH_PREFIX "whateverYouLike"
 #define MESH_PASSWORD "somethingSneaky"
 #define MESH_PORT 5555
 
+#define ROOTNODE 1375526329
 
 
 // Prototypes
@@ -28,7 +28,6 @@ void receivedCallback(const uint32_t &from, const String &msg);
 IPAddress getlocalIP();
 
 IPAddress myIP(0, 0, 0, 0);
-IPAddress mqttBroker(192, 168, 1, 4);
 Scheduler userScheduler;
 painlessMesh mesh;
 WiFiClient wifiClient;
@@ -68,21 +67,36 @@ void loop()
 }
 
 void sendMsgToBroker(){
-  String msg = "Hello from node ";
+  String msg = "";
+  msg += 78;
   // msg += mesh.getNodeId();
 
   // Serial.printf("test");
-  uint32_t target = 1375462669;
+  uint32_t target = ROOTNODE;
    mesh.sendSingle(target, msg);
 }
 
 
 
 
+void toggleRelay(String state){
+  if (state == "1"){
+    Serial.println("turned on");
+  }else if (state == "0"){
+Serial.println("turned off");
+  }
+  else{
+    Serial.println("error in toggle");
+  }
+ }
+
 void receivedCallback(const uint32_t &from, const String &msg)
 {
   Serial.printf("bridge: Received from %u msg=%s\n", from, msg.c_str());
+  toggleRelay(msg);
 }
+
+
 
 IPAddress getlocalIP()
 {
