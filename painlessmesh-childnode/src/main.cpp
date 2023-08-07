@@ -13,11 +13,16 @@
 #include <Arduino.h>
 #include <painlessMesh.h>
 #include <WiFiClient.h>
-
+#include "ACS712.h"
+#include <ZMPT101B.h>
 #define MESH_PREFIX "whateverYouLike"
 #define MESH_PASSWORD "somethingSneaky"
 #define MESH_PORT 5555
 
+#define SENSITIVITY 500.0f
+
+ZMPT101B voltageSensor(A0, 50.0)
+ACS712 sensor(ACS712_05B, A0);
 #define ROOTNODE 1375526329
 
 
@@ -43,12 +48,14 @@ float getPower(uint8_t state);
 void setup()
 {
   Serial.begin(115200);
+  voltageSensor.setSensitivity(SENSITIVITY);
+   sensor.calibrate();
   pinMode(RELAYPIN,OUTPUT);
   mesh.setDebugMsgTypes(ERROR | STARTUP | CONNECTION); // set before init() so that you can see startup messages
 
   // Channel set to 6. Make sure to use the same channel for your mesh and for you other
   // network (STATION_SSID)
-  mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT, WIFI_AP_STA, 6);
+  mesh.init(MESH_PREFIX, MESH_PASSWORD, &userScheduler, MESH_PORT, WIFI_AP_STA, 3);
   mesh.onReceive(&receivedCallback);
  mesh.setContainsRoot(true);
   userScheduler.addTask( taskSendMessage );
@@ -100,31 +107,23 @@ Serial.println("turned off");
 
 
 // Function to generate a random float number within a given range
-float randomFloat(float minVal, float maxVal) {
-    // Ensure that minVal is smaller than maxVal
-    if (minVal > maxVal) {
-        float temp = minVal;
-        minVal = maxVal;
-        maxVal = temp;
-    }
 
-    // Generate a random integer between 0 and RAND_MAX
-    int randomInt = random(0, RAND_MAX);
+float getVoltage(){
+  float voltage = voltageSensor.getRmsVoltage();
+  return voltage;
+}
 
-    // Convert the random integer to a float between 0 and 1
-    float randomFloat = static_cast<float>(randomInt) / static_cast<float>(RAND_MAX);
-
-    // Scale and shift the random float to the desired range
-    float result = randomFloat * (maxVal - minVal) + minVal;
-
-    return result;
+float getCurrent(){
+  float I = sensor.getCurrentAC();
+  if (I < 0.09) {
+    return I = 0;
+  }
+  return I;
 }
 
 
-
-
 float getPower(uint8_t state){
-  float watt = randomFloat(4,6);
+  float watt = getCurrent()*getVoltage();
   return watt * state;
 }
 
