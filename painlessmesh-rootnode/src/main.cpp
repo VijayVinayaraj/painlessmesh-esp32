@@ -19,7 +19,7 @@
 #define MESH_PASSWORD "somethingSneaky"
 #define MESH_PORT 5555
 
-#define STATION_SSID "GNXS"
+#define STATION_SSID "wifi"
 #define STATION_PASSWORD "1234567890"
 
 #define HOSTNAME "MQTT_Bridge"
@@ -31,7 +31,7 @@ void mqttCallback(char *topic, byte *payload, unsigned int length);
 IPAddress getlocalIP();
 
 IPAddress myIP(0, 0, 0, 0);
-IPAddress mqttBroker(192, 168, 1, 4);
+IPAddress mqttBroker(192, 168, 224, 243);
 // Scheduler userScheduler;
 painlessMesh mesh;
 WiFiClient wifiClient;
@@ -49,7 +49,7 @@ void setup()
 
   // Channel set to 6. Make sure to use the same channel for your mesh and for you other
   // network (STATION_SSID)
-  mesh.init(MESH_PREFIX, MESH_PASSWORD, MESH_PORT, WIFI_AP_STA, 6);
+  mesh.init(MESH_PREFIX, MESH_PASSWORD, MESH_PORT, WIFI_AP_STA, 3);
   mesh.onReceive(&receivedCallback);
 
   mesh.stationManual(STATION_SSID, STATION_PASSWORD);
