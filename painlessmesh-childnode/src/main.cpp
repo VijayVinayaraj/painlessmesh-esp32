@@ -21,8 +21,8 @@
 
 #define SENSITIVITY 500.0f
 
-ZMPT101B voltageSensor(A0, 50.0)
-ACS712 sensor(ACS712_05B, A0);
+ZMPT101B voltageSensor(33, 50.0)
+ACS712 sensor(ACS712_05B, 32);
 #define ROOTNODE 1375526329
 
 
